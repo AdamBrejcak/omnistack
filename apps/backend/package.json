@@ -1,0 +1,20 @@
+{
+  "name": "@omnistack/backend",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "sst dev"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "catalog:",
+    "@omnistack/core": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "firebase-admin": "^14.2.0",
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.130",
+    "@types/node": "^26.1.1",
+    "drizzle-kit": "catalog:"
+  }
+}

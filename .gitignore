@@ -1,0 +1,23 @@
+
+
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment variables & secrets
+.env*
+!.env.example
+
+# Build outputs & caches
+.nuxt/
+.output/
+dist/
+.sst
+.sst/
+.turbo/
+.cache/
+
+# OS generated files
+.DS_Store
+Thumbs.db
