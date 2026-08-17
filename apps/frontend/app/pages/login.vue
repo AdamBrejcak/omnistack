@@ -156,7 +156,7 @@ const handleGoogleLogin = async () => {
             v-model="email"
             type="email"
             required
-            placeholder="name@example.com"
+            placeholder="name@email.com"
             class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-sm transition"
           />
         </div>

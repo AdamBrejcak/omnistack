@@ -8,6 +8,7 @@ export default $config({
       home: "aws",
     };
   },
+
   async run() {
     const api = new sst.aws.Function("Api", {
       handler: "apps/backend/src/index.handler",
