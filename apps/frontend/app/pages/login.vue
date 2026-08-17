@@ -15,7 +15,6 @@ const { $firebaseAuth } = useNuxtApp();
 const { fetchWithAuth } = useApi();
 const router = useRouter();
 
-// Form state
 const isSignUp = ref(false);
 const email = ref("");
 const password = ref("");
@@ -24,7 +23,6 @@ const name = ref("");
 const loading = ref(false);
 const errorMessage = ref("");
 
-// Safe getter for Auth instance to prevent "undefined app" errors
 const getAuthInstance = (): Auth => {
   const auth = $firebaseAuth as Auth;
   if (!auth) {
@@ -35,7 +33,6 @@ const getAuthInstance = (): Auth => {
   return auth;
 };
 
-// Helper to create / sync user in Neon DB via Hono API
 const syncUserWithBackend = async (displayName?: string | null) => {
   await fetchWithAuth("api/user/sync", {
     method: "POST",
@@ -45,7 +42,6 @@ const syncUserWithBackend = async (displayName?: string | null) => {
   });
 };
 
-// 1. Email + Password Sign In / Sign Up
 const handleSubmit = async () => {
   if (!email.value || !password.value) {
     errorMessage.value = "Please fill in both email and password.";
@@ -75,7 +71,6 @@ const handleSubmit = async () => {
   }
 };
 
-// 2. Google OAuth Sign In
 const handleGoogleLogin = async () => {
   loading.value = true;
   errorMessage.value = "";
@@ -85,7 +80,6 @@ const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     const credential = await signInWithPopup(auth, provider);
 
-    // Sync user with Neon DB
     await syncUserWithBackend(credential.user.displayName);
 
     router.push("/dashboard");

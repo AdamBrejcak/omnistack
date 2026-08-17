@@ -23,9 +23,9 @@ export default $config({
       path: "apps/frontend",
       environment: {
         PUBLIC_API_URL: api.url,
-        PUBLIC_FIREBASE_API_KEY: process.env.PUBLIC_FIREBASE_API_KEY!,
-        PUBLIC_FIREBASE_AUTH_DOMAIN: process.env.PUBLIC_FIREBASE_AUTH_DOMAIN!,
-        PUBLIC_FIREBASE_PROJECT_ID: process.env.PUBLIC_FIREBASE_PROJECT_ID!,
+        FIREBASE_API_KEY: process.env.FIREBASE_API_KEY!,
+        FIREBASE_AUTH_DOMAIN: process.env.FIREBASE_AUTH_DOMAIN!,
+        FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID!,
       },
     });
 

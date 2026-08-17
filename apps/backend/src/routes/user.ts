@@ -8,7 +8,6 @@ const userRouter = new Hono<Env>();
 userRouter.get("/me", requireAuth, async (c) => {
   const userId = c.get("userId");
 
-  // Fetch user from Neon Postgres using Firebase UID
   const user = await db.query.users.findFirst({
     where: eq(users.id, userId),
   });
@@ -25,13 +24,12 @@ userRouter.post("/sync", requireAuth, async (c) => {
   const email = c.get("email");
   const { name } = await c.req.json();
 
-  // Insert new user into Neon DB on first login (uses Firebase UID as PK)
   const [user] = await db
     .insert(users)
     .values({
       id: userId,
       email: email,
-      name: name || email.split("@")[0], // Fallback name if omitted
+      name: name || email.split("@")[0],
     })
     .onConflictDoNothing()
     .returning();
