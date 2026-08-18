@@ -71,6 +71,7 @@ const handleSubmit = async () => {
   }
 };
 
+
 const handleGoogleLogin = async () => {
   loading.value = true;
   errorMessage.value = "";
@@ -151,6 +152,7 @@ const handleGoogleLogin = async () => {
             type="email"
             required
             placeholder="name@email.com"
+            autocomplete="username"
             class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-sm transition"
           />
         </div>
@@ -167,6 +169,7 @@ const handleGoogleLogin = async () => {
             type="password"
             required
             placeholder="••••••••"
+            autocomplete="current-password"
             class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-sm transition"
           />
         </div>

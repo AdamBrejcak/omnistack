@@ -4,22 +4,19 @@ import { getAuth } from "firebase-admin/auth";
 const serviceAccountRaw = process.env.FIREBASE_SERVICE_ACCOUNT;
 
 if (!serviceAccountRaw) {
-    throw new Error("FIREBASE_SERVICE_ACCOUNT environment variable is missing!");
+  throw new Error("FIREBASE_SERVICE_ACCOUNT environment variable is missing!");
 }
 
 const serviceAccount = JSON.parse(serviceAccountRaw);
 
 if (serviceAccount.private_key) {
-    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, "\n");
+  serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, "\n");
 }
 
-if (!serviceAccountRaw) {
-    throw new Error("FIREBASE_SERVICE_ACCOUNT environment variable is missing!");
-}
 if (getApps().length === 0) {
-    initializeApp({
-        credential: cert(serviceAccount),
-    });
+  initializeApp({
+    credential: cert(serviceAccount),
+  });
 }
 
 export const firebaseAuth = getAuth();
