@@ -11,6 +11,10 @@ declare module "sst" {
       "type": "sst.aws.Function"
       "url": string
     }
+    "ProfileImages": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
     "Web": {
       "type": "sst.aws.Nuxt"
       "url": string

@@ -31,7 +31,7 @@ through SST.
   OAuth. On account creation (sign-up or first Google sign-in), calls
   `POST /api/user/sync` to persist the user in Postgres.
 - `app/pages/dashboard.vue` — protected page; redirects to `/login` if not
-  authenticated, fetches the current user via `GET /api/user/me`.
+  authenticated, fetches the current user via `GET /api/user/profile`.
 
 ## Development
 

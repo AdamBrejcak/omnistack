@@ -21,7 +21,7 @@ All routes are mounted under `/api/user` and require a valid Firebase ID token
 
 | Method | Path             | Description                                                        |
 | ------ | ---------------- | ------------------------------------------------------------------- |
-| GET    | `/api/user/me`   | Returns the authenticated user's row from Postgres, 404 if missing.|
+| GET    | `/api/user/profile`   | Returns the authenticated user's row from Postgres, 404 if missing.|
 | POST   | `/api/user/sync` | Inserts the authenticated user into Postgres on first sign-up (uses Firebase UID as primary key; no-op if the row already exists). |
 
 ## Development
@@ -42,7 +42,7 @@ environment (loaded from the root `.env`).
 src/
   index.ts              Hono app entrypoint / Lambda handler
   middleware/auth.ts     requireAuth: verifies Firebase ID tokens
-  routes/user.ts         /api/user/me and /api/user/sync
+  routes/user.ts         /api/user/profile and /api/user/sync
   lib/firebase.ts         Firebase Admin SDK initialization
 ```
 

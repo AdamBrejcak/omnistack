@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+  },
+  "include": [
+    "src/**/*",
+    "sst-env.d.ts",
+    "../../sst-env.d.ts"
+  ]
+}

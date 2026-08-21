@@ -99,7 +99,7 @@ pnpm sst deploy --stage production
 ## Current status and roadmap
 
 Implemented: Firebase authentication (email/password + Google), a protected
-`GET /api/user/me` / `POST /api/user/sync` API, and a Neon/Drizzle `users`
+`GET /api/user/profile` / `POST /api/user/sync` API, and a Neon/Drizzle `users`
 table.
 
 Not yet implemented: S3 file storage, SQS background workers, Stripe billing,

@@ -10,8 +10,13 @@ export default $config({
   },
 
   async run() {
+    const profileImages = new sst.aws.Bucket("ProfileImages", {
+      public: true,
+    });
+
     const api = new sst.aws.Function("Api", {
       handler: "apps/backend/src/index.handler",
+      link: [profileImages],
       environment: {
         DATABASE_URL: process.env.DATABASE_URL!,
         FIREBASE_SERVICE_ACCOUNT: process.env.FIREBASE_SERVICE_ACCOUNT!,

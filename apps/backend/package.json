@@ -6,6 +6,8 @@
     "dev": "sst dev"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1114.0",
+    "@aws-sdk/s3-request-presigner": "^3.1114.0",
     "@neondatabase/serverless": "catalog:",
     "@omnistack/core": "workspace:*",
     "drizzle-orm": "catalog:",

@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen bg-slate-950 text-slate-100 font-sans">
-    <!-- Navigation Bar -->
     <header
       class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50"
     >
@@ -19,16 +18,23 @@
         </div>
 
         <div class="flex items-center gap-4">
-          <!-- User Profile Summary in Header -->
           <div
             v-if="user"
             class="flex items-center gap-3 pr-2 border-r border-slate-800"
           >
+            <img
+              v-if="user.avatarUrl"
+              :src="user.avatarUrl"
+              alt="User avatar"
+              class="w-9 h-9 rounded-full object-cover border border-slate-700 ring-2 ring-indigo-500/20"
+            />
             <div
-              class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-medium text-slate-300"
+              v-else
+              class="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-medium text-slate-300 shadow-inner"
             >
               {{ user.name ? user.name.charAt(0).toUpperCase() : "U" }}
             </div>
+
             <div class="hidden sm:block text-sm">
               <p class="font-medium text-slate-200 leading-none">
                 {{ user.name }}
@@ -39,7 +45,6 @@
             </div>
           </div>
 
-          <!-- Sign Out Button -->
           <button
             @click="handleLogout"
             class="text-xs sm:text-sm font-medium px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors duration-200 border border-slate-700"
@@ -50,35 +55,34 @@
       </div>
     </header>
 
-    <!-- Main Dashboard Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      <!-- Loading State Spinner -->
       <div v-if="pending" class="flex items-center justify-center py-20">
         <div
           class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"
         ></div>
       </div>
 
-      <!-- Dashboard Grid Container -->
       <template v-else>
-        <!-- Welcome Hero Section -->
         <div
-          class="bg-gradient-to-r from-indigo-900/40 via-purple-900/20 to-slate-900/50 border border-indigo-500/20 rounded-2xl p-6 sm:p-8"
+          class="bg-gradient-to-r from-indigo-900/40 via-purple-900/20 to-slate-900/50 border border-indigo-500/20 rounded-2xl p-6 sm:p-8 flex items-center justify-between gap-6"
         >
-          <h1 class="text-2xl sm:text-3xl font-bold text-white">
-            Welcome back, {{ user?.name || "Developer" }}! 👋
-          </h1>
-          <p class="text-slate-400 mt-2 max-w-2xl text-sm sm:text-base">
-            Your account is synced with Neon Postgres DB. You're logged in with
-            UID:
-            <code
-              class="bg-slate-950 px-2 py-0.5 rounded border border-slate-800 text-indigo-400 font-mono text-xs"
-              >{{ user?.id }}</code
-            >
-          </p>
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-white">
+              Welcome back, {{ user?.name || "Developer" }}! 👋
+            </h1>
+            <p class="text-slate-400 mt-2 max-w-2xl text-sm sm:text-base">
+              Your account is synced with Neon Postgres DB via Hono API. Manage
+              your profile and view your data below.
+            </p>
+          </div>
+          <!-- TODO: Optional: Large avatar display in hero -->
+          <img
+            v-if="user?.avatarUrl"
+            :src="user.avatarUrl"
+            class="w-20 h-20 rounded-2xl object-cover border-2 border-indigo-500/30 hidden md:block shadow-lg"
+          />
         </div>
 
-        <!-- Metric Cards Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div
             class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-5 hover:border-slate-700 transition"
@@ -137,43 +141,71 @@
           </div>
         </div>
 
-        <!-- User Profile Details Table -->
-        <div
-          class="bg-slate-900/60 border border-slate-800/80 rounded-xl overflow-hidden"
-        >
-          <div class="px-6 py-4 border-b border-slate-800">
-            <h2 class="text-base font-semibold text-white">
-              Your Profile Data (/api/user/me)
-            </h2>
-          </div>
-          <div class="divide-y divide-slate-800/60 text-sm">
-            <div class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4">
-              <span class="text-slate-400 font-medium">User ID</span>
-              <span
-                class="col-span-2 sm:col-span-3 font-mono text-xs text-indigo-300 break-all"
-                >{{ user?.id }}</span
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+          <div
+            class="lg:col-span-2 bg-slate-900/60 border border-slate-800/80 rounded-xl overflow-hidden shadow-xl"
+          >
+            <div class="px-6 py-4 border-b border-slate-800 bg-slate-900/80">
+              <h2 class="text-base font-semibold text-white">
+                Your Profile Data (Fetched via Hono API)
+              </h2>
+            </div>
+            <div class="divide-y divide-slate-800/60 text-sm bg-slate-900/40">
+              <div
+                class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center"
               >
+                <span class="text-slate-400 font-medium">User ID</span>
+                <span
+                  class="col-span-2 sm:col-span-3 font-mono text-xs text-indigo-300 break-all bg-slate-950/60 p-2 rounded border border-slate-800"
+                  >{{ user?.id }}</span
+                >
+              </div>
+              <div
+                class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center"
+              >
+                <span class="text-slate-400 font-medium">Full Name</span>
+                <span
+                  class="col-span-2 sm:col-span-3 text-slate-200 font-medium text-base"
+                  >{{ user?.name }}</span
+                >
+              </div>
+              <div
+                class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center"
+              >
+                <span class="text-slate-400 font-medium">Email Address</span>
+                <span class="col-span-2 sm:col-span-3 text-slate-200">{{
+                  user?.email
+                }}</span>
+              </div>
+              <div
+                class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center"
+              >
+                <span class="text-slate-400 font-medium">Created At</span>
+                <span class="col-span-2 sm:col-span-3 text-slate-200">{{
+                  user?.createdAt
+                    ? new Date(user.createdAt).toLocaleString()
+                    : "Recently"
+                }}</span>
+              </div>
+              <!-- TODO: Optional: Display avatar URL as text -->
+              <div
+                v-if="user?.avatarUrl"
+                class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center"
+              >
+                <span class="text-slate-400 font-medium">Avatar URL</span>
+                <span
+                  class="col-span-2 sm:col-span-3 text-xs text-slate-500 break-all font-mono"
+                  >{{ user?.avatarUrl }}</span
+                >
+              </div>
             </div>
-            <div class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4">
-              <span class="text-slate-400 font-medium">Full Name</span>
-              <span class="col-span-2 sm:col-span-3 text-slate-200">{{
-                user?.name
-              }}</span>
-            </div>
-            <div class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4">
-              <span class="text-slate-400 font-medium">Email Address</span>
-              <span class="col-span-2 sm:col-span-3 text-slate-200">{{
-                user?.email
-              }}</span>
-            </div>
-            <div class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4">
-              <span class="text-slate-400 font-medium">Created At</span>
-              <span class="col-span-2 sm:col-span-3 text-slate-200">{{
-                user?.createdAt
-                  ? new Date(user.createdAt).toLocaleString()
-                  : "Just now"
-              }}</span>
-            </div>
+          </div>
+
+          <div class="lg:col-span-1">
+            <AvatarUpload
+              :current-avatar-url="user?.avatarUrl"
+              @uploaded="handleAvatarUploaded"
+            />
           </div>
         </div>
       </template>
@@ -193,6 +225,7 @@ interface UserProfile {
   name: string;
   email: string;
   createdAt?: string;
+  avatarUrl?: string | null;
 }
 
 const router = useRouter();
@@ -215,12 +248,11 @@ onMounted(() => {
 
     try {
       const response = await fetchWithAuth<{ user: UserProfile }>(
-        "api/user/me",
+        "api/user/profile",
       );
       user.value = response.user;
     } catch (err) {
       console.error("Failed to load user profile:", err);
-      router.push("/login");
     } finally {
       pending.value = false;
     }
@@ -240,6 +272,21 @@ const handleLogout = async () => {
     router.push("/login");
   } catch (err) {
     console.error("Logout error:", err);
+  }
+};
+
+const handleAvatarUploaded = async (newImageUrl: string) => {
+  if (user.value) {
+    user.value.avatarUrl = newImageUrl;
+  }
+
+  try {
+    fetchWithAuth("api/user/profile", {
+      method: "PATCH",
+      body: { avatarUrl: newImageUrl },
+    });
+  } catch (err) {
+    console.error("Failed to save avatar URL to database:", err);
   }
 };
 </script>
