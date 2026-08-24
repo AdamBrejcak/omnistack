@@ -3,10 +3,7 @@ import { fileURLToPath } from 'node:url';
 export default defineNuxtConfig({
   compatibilityDate: "2026-01-01",
   devtools: { enabled: true },
-
-  alias: {
-    '@': fileURLToPath(new URL('./', import.meta.url)),
-  },
+  ssr: true,
 
   modules: [
     "@nuxtjs/tailwindcss"

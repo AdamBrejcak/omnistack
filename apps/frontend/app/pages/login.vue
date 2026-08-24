@@ -156,7 +156,6 @@ import {
   signInWithPopup,
   type Auth,
 } from "firebase/auth";
-import { useApi } from "@/composables/useApi";
 
 const { $firebaseAuth } = useNuxtApp();
 const { fetchWithAuth } = useApi();
@@ -208,7 +207,7 @@ const handleSubmit = async () => {
       await signInWithEmailAndPassword(auth, email.value, password.value);
     }
 
-    router.push("/dashboard");
+    router.push("/");
   } catch (err: any) {
     console.error("Auth Error:", err);
     errorMessage.value =
@@ -229,7 +228,7 @@ const handleGoogleLogin = async () => {
 
     await syncUserWithBackend(credential.user.displayName);
 
-    router.push("/dashboard");
+    router.push("/");
   } catch (err: any) {
     console.error("Google Auth Error:", err);
     errorMessage.value = err?.message || "Google sign-in failed.";

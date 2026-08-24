@@ -1,5 +1,9 @@
 {
   // https://nuxt.com/docs/guide/concepts/typescript
   "files": [],
-  "extends": "./.nuxt/tsconfig.json"
+  "extends": "./.nuxt/tsconfig.json",
+  "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+    "strict": true
+  }
 }

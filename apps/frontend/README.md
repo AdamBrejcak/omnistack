@@ -30,7 +30,7 @@ through SST.
 - `app/pages/login.vue` — email/password sign-in and sign-up, plus Google
   OAuth. On account creation (sign-up or first Google sign-in), calls
   `POST /api/user/sync` to persist the user in Postgres.
-- `app/pages/dashboard.vue` — protected page; redirects to `/login` if not
+- `app/pages/index.vue` — protected page; redirects to `/login` if not
   authenticated, fetches the current user via `GET /api/user/profile`.
 
 ## Development

@@ -40,7 +40,6 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { toast } from "vue-sonner";
-import { useApi } from "@/composables/useApi";
 import type { User } from "@omnistack/core/db";
 
 const props = defineProps<{

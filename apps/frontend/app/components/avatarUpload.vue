@@ -104,7 +104,6 @@
 </template>
 
 <script setup lang="ts">
-import { useProfileUpload } from "@/composables/useProfileUpload";
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const props = defineProps<{
