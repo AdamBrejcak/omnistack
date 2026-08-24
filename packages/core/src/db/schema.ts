@@ -7,3 +7,5 @@ export const users = pgTable("users", {
     avatarUrl: text("avatar_url"),
     createdAt: timestamp("created_at").defaultNow(),
 });
+
+export type User = typeof users.$inferSelect;

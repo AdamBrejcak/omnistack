@@ -58,27 +58,50 @@ userRouter.post("/sync", requireAuth, async (c) => {
 
 userRouter.patch("/profile", requireAuth, async (c) => {
   const userId = c.get("userId");
-  const { avatarUrl } = await c.req.json<{ avatarUrl?: string }>();
+  const { name, avatarUrl } = await c.req.json<{
+    name?: string;
+    avatarUrl?: string;
+  }>();
 
-  if (!avatarUrl || typeof avatarUrl !== "string") {
-    return c.json({ error: "Invalid or missing avatarUrl parameter." }, 400);
+  if (!name && !avatarUrl) {
+    return c.json({ error: "At least one field (name or avatarUrl) must be provided." }, 400);
+  }
+
+  const updateData: { name?: string; avatarUrl?: string } = {};
+
+  if (name !== undefined) {
+    if (typeof name !== "string" || !name.trim()) {
+      return c.json({ error: "Invalid name parameter." }, 400);
+    }
+    updateData.name = name.trim();
+  }
+
+  if (avatarUrl !== undefined) {
+    if (typeof avatarUrl !== "string") {
+      return c.json({ error: "Invalid avatarUrl parameter." }, 400);
+    }
+    updateData.avatarUrl = avatarUrl;
   }
 
   const currentUser = await db.query.users.findFirst({
     where: eq(users.id, userId),
   });
 
-  const [updatedUser] = await db
-    .update(users)
-    .set({ avatarUrl })
-    .where(eq(users.id, userId))
-    .returning();
-
-  if (!updatedUser) {
+  if (!currentUser) {
     return c.json({ error: "User not found" }, 404);
   }
 
-  if (currentUser?.avatarUrl && currentUser.avatarUrl !== avatarUrl) {
+  const [updatedUser] = await db
+    .update(users)
+    .set(updateData)
+    .where(eq(users.id, userId))
+    .returning();
+
+  if (
+    avatarUrl !== undefined &&
+    currentUser.avatarUrl &&
+    currentUser.avatarUrl !== avatarUrl
+  ) {
     await deleteOldAvatarIfExists(currentUser.avatarUrl);
   }
 

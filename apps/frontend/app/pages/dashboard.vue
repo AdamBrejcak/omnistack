@@ -75,7 +75,6 @@
               your profile and view your data below.
             </p>
           </div>
-          <!-- TODO: Optional: Large avatar display in hero -->
           <img
             v-if="user?.avatarUrl"
             :src="user.avatarUrl"
@@ -187,7 +186,6 @@
                     : "Recently"
                 }}</span>
               </div>
-              <!-- TODO: Optional: Display avatar URL as text -->
               <div
                 v-if="user?.avatarUrl"
                 class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center"
@@ -202,10 +200,7 @@
           </div>
 
           <div class="lg:col-span-1">
-            <AvatarUpload
-              :current-avatar-url="user?.avatarUrl"
-              @uploaded="handleAvatarUploaded"
-            />
+            <ProfileForm :user="user" @updated="handleUserUpdated" />
           </div>
         </div>
       </template>
@@ -214,25 +209,19 @@
 </template>
 
 <script setup lang="ts">
+import { onAuthStateChanged, signOut, type Auth } from "firebase/auth";
 import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { useNuxtApp } from "nuxt/app";
-import { onAuthStateChanged, signOut, type Auth } from "firebase/auth";
-import { useApi } from "../../composables/useApi";
-
-interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  createdAt?: string;
-  avatarUrl?: string | null;
-}
+import { useApi } from "@/composables/useApi";
+import { useUser } from "@/composables/useUser";
+import type { User } from "@omnistack/core/db";
 
 const router = useRouter();
 const { fetchWithAuth } = useApi();
 const { $firebaseAuth } = useNuxtApp();
+const { user, setUser } = useUser();
 
-const user = ref<UserProfile | null>(null);
 const pending = ref(true);
 
 let unsubscribe: (() => void) | null = null;
@@ -242,15 +231,14 @@ onMounted(() => {
 
   unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
     if (!firebaseUser) {
+      setUser(null);
       router.push("/login");
       return;
     }
 
     try {
-      const response = await fetchWithAuth<{ user: UserProfile }>(
-        "api/user/profile",
-      );
-      user.value = response.user;
+      const response = await fetchWithAuth<{ user: User }>("api/user/profile");
+      setUser(response.user);
     } catch (err) {
       console.error("Failed to load user profile:", err);
     } finally {
@@ -269,24 +257,14 @@ const handleLogout = async () => {
   try {
     const auth = $firebaseAuth as Auth;
     await signOut(auth);
+    setUser(null);
     router.push("/login");
   } catch (err) {
     console.error("Logout error:", err);
   }
 };
 
-const handleAvatarUploaded = async (newImageUrl: string) => {
-  if (user.value) {
-    user.value.avatarUrl = newImageUrl;
-  }
-
-  try {
-    fetchWithAuth("api/user/profile", {
-      method: "PATCH",
-      body: { avatarUrl: newImageUrl },
-    });
-  } catch (err) {
-    console.error("Failed to save avatar URL to database:", err);
-  }
+const handleUserUpdated = (updatedData: Partial<User>) => {
+  setUser(updatedData);
 };
 </script>

@@ -1,98 +1,3 @@
-<script setup lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { useNuxtApp } from "nuxt/app";
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-  type Auth,
-} from "firebase/auth";
-import { useApi } from "../../composables/useApi";
-
-const { $firebaseAuth } = useNuxtApp();
-const { fetchWithAuth } = useApi();
-const router = useRouter();
-
-const isSignUp = ref(false);
-const email = ref("");
-const password = ref("");
-const name = ref("");
-
-const loading = ref(false);
-const errorMessage = ref("");
-
-const getAuthInstance = (): Auth => {
-  const auth = $firebaseAuth as Auth;
-  if (!auth) {
-    throw new Error(
-      "Firebase Auth is not initialized. Please check your environment variables.",
-    );
-  }
-  return auth;
-};
-
-const syncUserWithBackend = async (displayName?: string | null) => {
-  await fetchWithAuth("api/user/sync", {
-    method: "POST",
-    body: {
-      name: displayName || name.value || "User",
-    },
-  });
-};
-
-const handleSubmit = async () => {
-  if (!email.value || !password.value) {
-    errorMessage.value = "Please fill in both email and password.";
-    return;
-  }
-
-  loading.value = true;
-  errorMessage.value = "";
-
-  try {
-    const auth = getAuthInstance();
-
-    if (isSignUp.value) {
-      await createUserWithEmailAndPassword(auth, email.value, password.value);
-      await syncUserWithBackend(name.value);
-    } else {
-      await signInWithEmailAndPassword(auth, email.value, password.value);
-    }
-
-    router.push("/dashboard");
-  } catch (err: any) {
-    console.error("Auth Error:", err);
-    errorMessage.value =
-      err?.message || "An error occurred during authentication.";
-  } finally {
-    loading.value = false;
-  }
-};
-
-
-const handleGoogleLogin = async () => {
-  loading.value = true;
-  errorMessage.value = "";
-
-  try {
-    const auth = getAuthInstance();
-    const provider = new GoogleAuthProvider();
-    const credential = await signInWithPopup(auth, provider);
-
-    await syncUserWithBackend(credential.user.displayName);
-
-    router.push("/dashboard");
-  } catch (err: any) {
-    console.error("Google Auth Error:", err);
-    errorMessage.value = err?.message || "Google sign-in failed.";
-  } finally {
-    loading.value = false;
-  }
-};
-</script>
-
 <template>
   <div
     class="min-h-screen flex items-center justify-center bg-slate-950 text-slate-100 p-4"
@@ -239,3 +144,97 @@ const handleGoogleLogin = async () => {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useNuxtApp } from "nuxt/app";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  type Auth,
+} from "firebase/auth";
+import { useApi } from "@/composables/useApi";
+
+const { $firebaseAuth } = useNuxtApp();
+const { fetchWithAuth } = useApi();
+const router = useRouter();
+
+const isSignUp = ref(false);
+const email = ref("");
+const password = ref("");
+const name = ref("");
+
+const loading = ref(false);
+const errorMessage = ref("");
+
+const getAuthInstance = (): Auth => {
+  const auth = $firebaseAuth as Auth;
+  if (!auth) {
+    throw new Error(
+      "Firebase Auth is not initialized. Please check your environment variables.",
+    );
+  }
+  return auth;
+};
+
+const syncUserWithBackend = async (displayName?: string | null) => {
+  await fetchWithAuth("api/user/sync", {
+    method: "POST",
+    body: {
+      name: displayName || name.value || "User",
+    },
+  });
+};
+
+const handleSubmit = async () => {
+  if (!email.value || !password.value) {
+    errorMessage.value = "Please fill in both email and password.";
+    return;
+  }
+
+  loading.value = true;
+  errorMessage.value = "";
+
+  try {
+    const auth = getAuthInstance();
+
+    if (isSignUp.value) {
+      await createUserWithEmailAndPassword(auth, email.value, password.value);
+      await syncUserWithBackend(name.value);
+    } else {
+      await signInWithEmailAndPassword(auth, email.value, password.value);
+    }
+
+    router.push("/dashboard");
+  } catch (err: any) {
+    console.error("Auth Error:", err);
+    errorMessage.value =
+      err?.message || "An error occurred during authentication.";
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleGoogleLogin = async () => {
+  loading.value = true;
+  errorMessage.value = "";
+
+  try {
+    const auth = getAuthInstance();
+    const provider = new GoogleAuthProvider();
+    const credential = await signInWithPopup(auth, provider);
+
+    await syncUserWithBackend(credential.user.displayName);
+
+    router.push("/dashboard");
+  } catch (err: any) {
+    console.error("Google Auth Error:", err);
+    errorMessage.value = err?.message || "Google sign-in failed.";
+  } finally {
+    loading.value = false;
+  }
+};
+</script>
