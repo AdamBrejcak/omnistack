@@ -1,12 +1,12 @@
 import { Hono } from "hono";
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { db, users } from "@omnistack/core/db";
+import { db, users, subscriptions } from "@omnistack/core/db";
 import { eq } from "drizzle-orm";
 import { Resource } from "sst";
 import { Env, requireAuth } from "../middleware/auth";
 
 const s3 = new S3Client({});
-const userRouter = new Hono<Env>();
+const app = new Hono<Env>();
 
 async function deleteOldAvatarIfExists(avatarUrl: string | null | undefined) {
   if (!avatarUrl) return;
@@ -25,7 +25,7 @@ async function deleteOldAvatarIfExists(avatarUrl: string | null | undefined) {
   }
 }
 
-userRouter.get("/profile", requireAuth, async (c) => {
+app.get("/profile", requireAuth, async (c) => {
   const userId = c.get("userId");
 
   const user = await db.query.users.findFirst({
@@ -35,15 +35,23 @@ userRouter.get("/profile", requireAuth, async (c) => {
   if (!user) {
     return c.json({ error: "User not found" }, 404);
   }
-  return c.json({ user });
+
+  const subscription = await db.query.subscriptions.findFirst({
+    where: eq(subscriptions.userId, userId),
+  });
+
+  return c.json({
+    user,
+    subscription: subscription || null,
+  });
 });
 
-userRouter.post("/sync", requireAuth, async (c) => {
+app.post("/sync", requireAuth, async (c) => {
   const userId = c.get("userId");
   const email = c.get("email");
   const { name } = await c.req.json();
 
-  const [user] = await db
+  let [user] = await db
     .insert(users)
     .values({
       id: userId,
@@ -53,10 +61,25 @@ userRouter.post("/sync", requireAuth, async (c) => {
     .onConflictDoNothing()
     .returning();
 
-  return c.json({ status: "synced", user });
+  // If user already existed, onConflictDoNothing returns empty array -> fetch user
+  if (!user) {
+    user = (await db.query.users.findFirst({
+      where: eq(users.id, userId),
+    }))!;
+  }
+
+  const subscription = await db.query.subscriptions.findFirst({
+    where: eq(subscriptions.userId, userId),
+  });
+
+  return c.json({
+    status: "synced",
+    user,
+    subscription: subscription || null,
+  });
 });
 
-userRouter.patch("/profile", requireAuth, async (c) => {
+app.patch("/profile", requireAuth, async (c) => {
   const userId = c.get("userId");
   const { name, avatarUrl } = await c.req.json<{
     name?: string;
@@ -105,10 +128,15 @@ userRouter.patch("/profile", requireAuth, async (c) => {
     await deleteOldAvatarIfExists(currentUser.avatarUrl);
   }
 
+  const subscription = await db.query.subscriptions.findFirst({
+    where: eq(subscriptions.userId, userId),
+  });
+
   return c.json({
     status: "updated",
     user: updatedUser,
+    subscription: subscription || null,
   });
 });
 
-export default userRouter;
+export default app;

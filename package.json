@@ -3,7 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "// dev": "Starts the full dev environment (SST v3 + Stripe CLI webhook tunnel)",
+    "dev": "concurrently -k -n \"SST,STRIPE\" -c \"cyan,magenta\" \"sst dev\" \"pnpm --filter backend stripe:listen\"",
+    "// db": "Pushes the current Drizzle schema directly to Neon DB",
+    "db": "drizzle-kit push",
+    "// db:studio": "Launches the visual database browser on http://localhost:4983",
+    "db:studio": "drizzle-kit studio",
+    "// stripe:login": "Authenticates the Stripe CLI with your Stripe account",
+    "stripe:login": "pnpm --filter backend stripe:login",
     "build": "pnpm -r build",
+    "setup:stripe": "tsx scripts/setup-stripe.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "db:generate": "drizzle-kit generate",
     "db:push": "sst shell drizzle-kit push"
@@ -21,6 +30,7 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "8.10.162",
+    "concurrently": "^10.0.5",
     "drizzle-kit": "catalog:"
   },
   "overrides": {

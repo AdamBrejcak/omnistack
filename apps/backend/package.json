@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "sst dev"
+    "dev": "sst dev",
+    "stripe:login": "stripe login",
+    "stripe:listen": "stripe listen --forward-to  https://72aqvrtbhv2e3sgjr3v4ql6mnm0rjxcf.lambda-url.us-east-1.on.aws/api/stripe/webhook"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1114.0",
@@ -12,11 +14,18 @@
     "@omnistack/core": "workspace:*",
     "drizzle-orm": "catalog:",
     "firebase-admin": "^14.2.0",
-    "hono": "catalog:"
+    "hono": "catalog:",
+    "stripe": "^22.6.1"
   },
   "devDependencies": {
+    "@stripe/cli": "^1.50.8",
     "@types/aws-lambda": "^8.10.162",
     "@types/node": "^26.2.0",
     "drizzle-kit": "catalog:"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@stripe/cli"
+    ]
   }
 }

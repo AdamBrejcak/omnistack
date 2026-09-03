@@ -1,4 +1,3 @@
-import { useNuxtApp, useRuntimeConfig } from "nuxt/app";
 import { type Auth } from "firebase/auth";
 import type { NitroFetchOptions } from "nitropack";
 

@@ -3,9 +3,11 @@ packages:
   - "packages/*"
 allowBuilds:
   '@firebase/util': true
+  '@stripe/cli': false
   es5-ext: true
   esbuild: true
   protobufjs: true
+  stripe-cli: set this to true or false
 catalog:
   "drizzle-orm": "0.45.2"
   "@neondatabase/serverless": "^1.1.0"

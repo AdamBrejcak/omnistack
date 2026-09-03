@@ -7,9 +7,9 @@ import { Env, requireAuth } from "../middleware/auth";
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const s3 = new S3Client({});
-const uploadsRouter = new Hono<Env>();
+const app = new Hono<Env>();
 
-uploadsRouter.post("/profile-image", requireAuth, async (c) => {
+app.post("/profile-image", requireAuth, async (c) => {
   const { fileType, fileExtension, fileSize } = await c.req.json<{
     fileType: string;
     fileExtension: string;
@@ -42,4 +42,4 @@ uploadsRouter.post("/profile-image", requireAuth, async (c) => {
   });
 });
 
-export default uploadsRouter;
+export default app;

@@ -20,6 +20,8 @@ export default $config({
       environment: {
         DATABASE_URL: process.env.DATABASE_URL!,
         FIREBASE_SERVICE_ACCOUNT: process.env.FIREBASE_SERVICE_ACCOUNT!,
+        STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY!,
+        STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!,
       },
       url: true,
     });
