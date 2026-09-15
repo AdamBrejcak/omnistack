@@ -431,12 +431,25 @@ const loadUserProfile = async () => {
   }
 };
 
+// Helper to poll profile API repeatedly until Webhook updates database to Pro
+const pollUserProfileUntilPro = async (maxRetries = 6, delayMs = 1500) => {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    await loadUserProfile();
+    if (isPro.value) {
+      break; // Webhook processed and user is Pro -> stop polling
+    }
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+};
+
 onMounted(() => {
   const auth = $firebaseAuth as Auth;
 
-  if (route.query.success === "true") {
+  const isSuccessRedirect = route.query.success === "true";
+
+  if (isSuccessRedirect) {
     showSuccessBanner.value = true;
-    router.replace({ query: {} });
+    router.replace({ query: {} }); // Clear query parameters from URL
   }
 
   unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -446,15 +459,13 @@ onMounted(() => {
       return;
     }
 
+    // 1. Initial profile load
     await loadUserProfile();
     pending.value = false;
 
-    if (route.query.success === "true" || showSuccessBanner.value) {
-      if (!subscription.value) {
-        setTimeout(async () => {
-          await loadUserProfile();
-        }, 1500);
-      }
+    // 2. If returning from Stripe checkout and not yet Pro, repeatedly check status (polling)
+    if ((isSuccessRedirect || showSuccessBanner.value) && !isPro.value) {
+      await pollUserProfileUntilPro();
     }
   });
 });
