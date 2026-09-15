@@ -35,12 +35,8 @@ const props = defineProps<{
   user: ClientUser | null;
 }>();
 
-const emit = defineEmits<{
-  (e: "updated", data: Partial<ClientUser>): void;
-}>();
-
 const toast = useToast();
-const { client } = useApi();
+const { updateProfile } = useUser();
 const loading = ref(false);
 
 const form = ref({
@@ -74,17 +70,9 @@ const handleAvatarUploaded = (url: string) => {
 const handleSubmit = async () => {
   loading.value = true;
   try {
-    const res = await client.api.user.profile.$patch({
-      json: {
-        name: form.value.name ?? undefined,
-        avatarUrl: form.value.avatarUrl ?? undefined,
-      },
-    });
-    await unwrap(res);
-
-    emit("updated", {
-      name: form.value.name,
-      avatarUrl: form.value.avatarUrl,
+    await updateProfile({
+      name: form.value.name ?? undefined,
+      avatarUrl: form.value.avatarUrl ?? undefined,
     });
 
     toast.add({ title: "Profile updated successfully!", color: "success" });

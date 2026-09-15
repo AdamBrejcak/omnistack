@@ -22,8 +22,8 @@ export const useStripe = () => {
                 json: {
                     priceId: options.priceId,
                     mode: options.mode,
-                    successUrl: options.successUrl || `${origin}/?payment=success`,
-                    cancelUrl: options.cancelUrl || `${origin}/?payment=cancelled`,
+                    successUrl: options.successUrl || `${origin}/dashboard?success=true`,
+                    cancelUrl: options.cancelUrl || `${origin}/dashboard?payment=cancelled`,
                 },
             });
             const data = await unwrap(res);
@@ -57,7 +57,7 @@ export const useStripe = () => {
 
             const res = await client.api.stripe.portal.$post({
                 json: {
-                    returnUrl: returnUrl || `${origin}/`,
+                    returnUrl: returnUrl || `${origin}/dashboard`,
                 },
             });
             const data = await unwrap(res);

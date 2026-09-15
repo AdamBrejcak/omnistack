@@ -1,10 +1,12 @@
 import type { User, Subscription } from "@omnistack/core/db";
 import type { Serialized } from "@omnistack/core/api";
+import { useApi, unwrap } from "./useApi";
 
 export type ClientUser = Serialized<User>;
 export type ClientSubscription = Serialized<Subscription>;
 
 export const useUser = () => {
+    const { client } = useApi();
     const user = useState<ClientUser | null>("auth-user", () => null);
     const subscription = useState<ClientSubscription | null>("auth-subscription", () => null);
 
@@ -44,6 +46,35 @@ export const useUser = () => {
         return isStatusActive || isPeriodValid;
     });
 
+    // Upserts the Firebase-authenticated user into Neon DB (POST /api/user/sync).
+    const syncUser = async (name?: string | null) => {
+        const res = await client.api.user.sync.$post({
+            json: { name: name || undefined },
+        });
+        const data = await unwrap(res);
+        setUser(data.user);
+        setSubscription(data.subscription);
+        return data;
+    };
+
+    // Fetches the current user's profile + subscription (GET /api/user/profile).
+    const fetchProfile = async () => {
+        const res = await client.api.user.profile.$get();
+        const data = await unwrap(res);
+        setUser(data.user);
+        setSubscription(data.subscription);
+        return data;
+    };
+
+    // Updates name/avatarUrl (PATCH /api/user/profile).
+    const updateProfile = async (payload: { name?: string; avatarUrl?: string }) => {
+        const res = await client.api.user.profile.$patch({ json: payload });
+        const data = await unwrap(res);
+        setUser(data.user);
+        setSubscription(data.subscription);
+        return data;
+    };
+
     return {
         user,
         subscription,
@@ -51,5 +82,8 @@ export const useUser = () => {
         setSubscription,
         clearUser,
         isPro,
+        syncUser,
+        fetchProfile,
+        updateProfile,
     };
 };

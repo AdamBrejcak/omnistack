@@ -1,5 +1,7 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-default p-4">
+  <div class="min-h-screen flex items-center justify-center bg-default p-4 relative">
+    <ColorModeToggle class="absolute top-4 right-4" />
+
     <UCard class="w-full max-w-md" :ui="{ body: 'gap-6 flex flex-col' }">
       <template #header>
         <div class="text-center">
@@ -131,7 +133,7 @@ import {
 } from "firebase/auth";
 
 const { $firebaseAuth } = useNuxtApp();
-const { client } = useApi();
+const { syncUser } = useUser();
 const router = useRouter();
 const toast = useToast();
 
@@ -165,12 +167,7 @@ const getAuthInstance = (): Auth => {
 };
 
 const syncUserWithBackend = async (displayName?: string | null) => {
-  const res = await client.api.user.sync.$post({
-    json: {
-      name: displayName || state.name || "User",
-    },
-  });
-  await unwrap(res);
+  await syncUser(displayName || state.name || "User");
 };
 
 const handleSubmit = async (event: FormSubmitEvent<Schema>) => {
@@ -188,7 +185,7 @@ const handleSubmit = async (event: FormSubmitEvent<Schema>) => {
       await signInWithEmailAndPassword(auth, email, password);
     }
 
-    router.push("/");
+    router.push("/dashboard");
   } catch (err: any) {
     console.error("Auth Error:", err);
     errorMessage.value =
@@ -214,7 +211,7 @@ const handleGoogleLogin = async () => {
 
     await syncUserWithBackend(credential.user.displayName);
 
-    router.push("/");
+    router.push("/dashboard");
   } catch (err: any) {
     console.error("Google Auth Error:", err);
     errorMessage.value = err?.message || "Google sign-in failed.";

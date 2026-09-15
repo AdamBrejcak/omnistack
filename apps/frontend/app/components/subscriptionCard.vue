@@ -54,10 +54,11 @@
       block
       size="lg"
       :loading="loading"
+      :disabled="!config.public.stripePriceIdPro"
       class="cursor-pointer"
       @click="handleUpgrade"
     >
-      Upgrade to Pro
+      {{ config.public.stripePriceIdPro ? "Upgrade to Pro" : "Pro plan not configured" }}
     </UButton>
   </UCard>
 </template>
@@ -104,7 +105,7 @@ const handleOpenPortal = () => {
 };
 
 const handleUpgrade = () => {
-  if (!user.value) return;
+  if (!user.value || !config.public.stripePriceIdPro) return;
 
   redirectToCheckout({
     priceId: config.public.stripePriceIdPro,
