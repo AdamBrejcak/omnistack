@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    "./db": "./src/db/index.ts"
+    "./db": "./src/db/index.ts",
+    "./api": "./src/types/api.ts"
   },
   "dependencies": {
     "drizzle-orm": "catalog:",

@@ -1,5 +1,6 @@
 import { createMiddleware } from "hono/factory";
 import { firebaseAuth } from "../lib/firebase";
+import { fail } from "../lib/response";
 
 export type Env = {
   Variables: {
@@ -12,10 +13,10 @@ export const requireAuth = createMiddleware<Env>(async (c, next) => {
   const authHeader = c.req.header("Authorization");
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return c.json({ error: "Missing or invalid Authorization header" }, 401);
+    return fail(c, "unauthorized", "Missing or invalid Authorization header", 401);
   }
 
-  const token = authHeader.split(" ")[1];
+  const token = authHeader.slice("Bearer ".length);
 
   try {
     const decodedToken = await firebaseAuth.verifyIdToken(token);
@@ -25,6 +26,7 @@ export const requireAuth = createMiddleware<Env>(async (c, next) => {
 
     await next();
   } catch (error) {
-    return c.json({ error: "Unauthorized: Invalid token" }, 401);
+    console.error("Failed to verify Firebase ID token:", error);
+    return fail(c, "unauthorized", "Invalid or expired token", 401);
   }
 });

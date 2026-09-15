@@ -1,341 +1,196 @@
 <template>
   <div>
     <ClientOnly>
-      <div class="min-h-screen bg-slate-950 text-slate-100 font-sans">
+      <div class="min-h-screen bg-default text-default font-sans">
         <!-- Header -->
         <header
-          class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50"
+          class="border-b border-default bg-default/80 backdrop-blur-md sticky top-0 z-50"
         >
-          <div
-            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"
-          >
+          <UContainer class="h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
               <div
-                class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30"
+                class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center font-bold text-inverted shadow-lg shadow-primary/30"
               >
                 O
               </div>
-              <span class="font-semibold text-lg tracking-wide text-white"
-                >OmniStack</span
-              >
+              <span class="font-semibold text-lg tracking-wide text-highlighted">
+                OmniStack
+              </span>
             </div>
 
-            <div class="flex items-center gap-4">
-              <div
-                v-if="user"
-                class="flex items-center gap-3 pr-2 border-r border-slate-800"
-              >
-                <img
-                  v-if="user.avatarUrl"
-                  :src="user.avatarUrl"
-                  alt="User avatar"
-                  class="w-9 h-9 rounded-full object-cover border border-slate-700 ring-2 ring-indigo-500/20"
-                />
-                <div
-                  v-else
-                  class="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-medium text-slate-300 shadow-inner"
-                >
-                  {{ user.name ? user.name.charAt(0).toUpperCase() : "U" }}
-                </div>
+            <div class="flex items-center gap-2">
+              <UButton
+                :icon="colorMode.value === 'dark' ? 'i-lucide-sun' : 'i-lucide-moon'"
+                color="neutral"
+                variant="ghost"
+                class="cursor-pointer"
+                @click="toggleColorMode"
+              />
 
-                <div class="hidden sm:block text-sm">
-                  <p class="font-medium text-slate-200 leading-none">
-                    {{ user.name }}
-                  </p>
-                  <p class="text-xs text-slate-400 mt-1 leading-none">
-                    {{ user.email }}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                @click="handleLogout"
-                class="text-xs sm:text-sm font-medium px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors duration-200 border border-slate-700"
-              >
-                Sign out
-              </button>
+              <UDropdownMenu :items="userMenuItems" :ui="{ content: 'w-56' }">
+                <UButton color="neutral" variant="ghost" class="pl-1.5 pr-2 cursor-pointer">
+                  <UAvatar :src="user?.avatarUrl ?? undefined" :alt="user?.name || 'User'" size="sm" />
+                  <span class="hidden sm:block text-sm font-medium text-default">
+                    {{ user?.name }}
+                  </span>
+                  <UIcon name="i-lucide-chevron-down" class="size-4 text-muted" />
+                </UButton>
+              </UDropdownMenu>
             </div>
-          </div>
+          </UContainer>
         </header>
 
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <UContainer class="py-8 space-y-8">
           <!-- Success banner after returning from Stripe checkout -->
-          <div
+          <UAlert
             v-if="showSuccessBanner"
-            class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between gap-4 text-emerald-400"
-          >
-            <div class="flex items-center gap-3">
-              <svg
-                class="w-6 h-6 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <div>
-                <p class="font-semibold text-sm sm:text-base">
-                  Payment successful!
-                </p>
-                <p class="text-xs sm:text-sm text-emerald-400/80">
-                  Your subscription status is being updated.
-                </p>
-              </div>
-            </div>
-            <button
-              @click="showSuccessBanner = false"
-              class="text-emerald-400 hover:text-emerald-200 text-sm"
-            >
-              ✕
-            </button>
-          </div>
+            color="success"
+            variant="subtle"
+            icon="i-lucide-circle-check"
+            title="Payment successful!"
+            description="Your subscription status is being updated."
+            :close-button="{ icon: 'i-lucide-x', color: 'success', variant: 'link' }"
+            @close="showSuccessBanner = false"
+          />
 
           <!-- Loading State -->
           <div v-if="pending" class="flex items-center justify-center py-20">
-            <div
-              class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"
-            ></div>
+            <UIcon name="i-lucide-loader-circle" class="size-8 text-primary animate-spin" />
           </div>
 
           <template v-else>
             <!-- Hero Welcome -->
-            <div
-              class="bg-gradient-to-r from-indigo-900/40 via-purple-900/20 to-slate-900/50 border border-indigo-500/20 rounded-2xl p-6 sm:p-8 flex items-center justify-between gap-6"
+            <UCard
+              :ui="{ body: 'flex items-center justify-between gap-6' }"
+              class="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent"
             >
               <div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-white">
+                <h1 class="text-2xl sm:text-3xl font-bold text-highlighted">
                   Welcome back, {{ user?.name || "Developer" }}! 👋
                 </h1>
-                <p class="text-slate-400 mt-2 max-w-2xl text-sm sm:text-base">
+                <p class="text-muted mt-2 max-w-2xl text-sm sm:text-base">
                   Your account is synced with Neon Postgres DB via Hono API.
                   Manage your profile, billing, and subscription below.
                 </p>
               </div>
-              <img
+              <UAvatar
                 v-if="user?.avatarUrl"
                 :src="user.avatarUrl"
-                class="w-20 h-20 rounded-2xl object-cover border-2 border-indigo-500/30 hidden md:block shadow-lg"
+                :alt="user.name || 'User'"
+                size="3xl"
+                class="hidden md:block ring-2 ring-primary/30"
               />
-            </div>
+            </UCard>
 
             <!-- Dashboard Stats Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div
-                class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-5 hover:border-slate-700 transition"
-              >
-                <p
-                  class="text-xs font-medium text-slate-400 uppercase tracking-wider"
-                >
+              <UCard>
+                <p class="text-xs font-medium text-muted uppercase tracking-wider">
                   Account Status
                 </p>
                 <div class="mt-2 flex items-baseline justify-between">
-                  <span class="text-2xl font-bold text-emerald-400"
-                    >Active</span
-                  >
-                  <span
-                    class="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20"
-                    >Synced</span
-                  >
+                  <span class="text-2xl font-bold text-success">Active</span>
+                  <UBadge color="success" variant="subtle">Synced</UBadge>
                 </div>
-              </div>
+              </UCard>
 
-              <!-- Subscription Plan Card -->
-              <div
-                class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-5 hover:border-slate-700 transition"
-              >
-                <p
-                  class="text-xs font-medium text-slate-400 uppercase tracking-wider"
-                >
+              <UCard>
+                <p class="text-xs font-medium text-muted uppercase tracking-wider">
                   Subscription Plan
                 </p>
                 <div class="mt-2 flex items-baseline justify-between">
                   <span
                     class="text-2xl font-bold"
-                    :class="isPro ? 'text-indigo-400' : 'text-slate-300'"
+                    :class="isPro ? 'text-primary' : 'text-default'"
                   >
                     {{ isPro ? "Pro Plan" : "Free Plan" }}
                   </span>
-                  <span
-                    :class="[
-                      'text-xs px-2 py-0.5 rounded-full border',
-                      statusBadge.class,
-                    ]"
-                  >
+                  <UBadge :color="statusBadge.color" variant="subtle">
                     {{ statusBadge.text }}
-                  </span>
+                  </UBadge>
                 </div>
-              </div>
+              </UCard>
 
-              <div
-                class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-5 hover:border-slate-700 transition"
-              >
-                <p
-                  class="text-xs font-medium text-slate-400 uppercase tracking-wider"
-                >
+              <UCard>
+                <p class="text-xs font-medium text-muted uppercase tracking-wider">
                   Database
                 </p>
                 <div class="mt-2 flex items-baseline justify-between">
-                  <span class="text-2xl font-bold text-white"
-                    >Neon PostgreSQL</span
-                  >
+                  <span class="text-2xl font-bold text-highlighted">Neon PostgreSQL</span>
                 </div>
-              </div>
+              </UCard>
 
-              <div
-                class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-5 hover:border-slate-700 transition"
-              >
-                <p
-                  class="text-xs font-medium text-slate-400 uppercase tracking-wider"
-                >
+              <UCard>
+                <p class="text-xs font-medium text-muted uppercase tracking-wider">
                   API Architecture
                 </p>
                 <div class="mt-2 flex items-baseline justify-between">
-                  <span class="text-2xl font-bold text-amber-400"
-                    >Hono + AWS</span
-                  >
+                  <span class="text-2xl font-bold text-warning">Hono + AWS</span>
                 </div>
-              </div>
+              </UCard>
             </div>
 
             <!-- Stripe Billing Section -->
-            <div
-              class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl relative overflow-hidden"
-            >
-              <div class="space-y-2">
-                <div class="flex items-center gap-2">
-                  <span
-                    class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
-                  >
-                    Stripe Payments Integrated
-                  </span>
-                  <span
-                    v-if="isCanceling"
-                    class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                  >
-                    Cancels on {{ formattedPeriodEnd }}
-                  </span>
-                </div>
-                <h2 class="text-xl font-bold text-white">
-                  {{
-                    isPro ? "You are on the Pro Plan" : "Upgrade to Pro Plan"
-                  }}
-                </h2>
-                <p class="text-sm text-slate-400 max-w-xl">
-                  {{
-                    isCanceling
-                      ? `Your Pro subscription is set to cancel at the end of the billing cycle (${formattedPeriodEnd}). You retain full access until then.`
-                      : isPro
-                        ? "Manage your payment details, invoices, or change subscription preferences."
-                        : "Get access to advanced OmniStack features, priority AWS compute, and unlimited DB connections."
-                  }}
-                </p>
-              </div>
-
-              <div class="flex items-center gap-4 w-full md:w-auto">
-                <PricingCard />
-              </div>
-            </div>
+            <SubscriptionCard />
 
             <!-- Profile Data Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-              <div
-                class="lg:col-span-2 bg-slate-900/60 border border-slate-800/80 rounded-xl overflow-hidden shadow-xl"
-              >
-                <div
-                  class="px-6 py-4 border-b border-slate-800 bg-slate-900/80"
-                >
-                  <h2 class="text-base font-semibold text-white">
+              <UCard class="lg:col-span-2" :ui="{ body: 'p-0 divide-y divide-default' }">
+                <template #header>
+                  <h2 class="text-base font-semibold text-highlighted">
                     Your Profile Data (Fetched via Hono API)
                   </h2>
+                </template>
+
+                <div class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center text-sm">
+                  <span class="text-muted font-medium">User ID</span>
+                  <span
+                    class="col-span-2 sm:col-span-3 font-mono text-xs text-primary break-all bg-muted p-2 rounded border border-default"
+                  >
+                    {{ user?.id }}
+                  </span>
                 </div>
-                <div
-                  class="divide-y divide-slate-800/60 text-sm bg-slate-900/40"
-                >
-                  <div
-                    class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center"
-                  >
-                    <span class="text-slate-400 font-medium">User ID</span>
-                    <span
-                      class="col-span-2 sm:col-span-3 font-mono text-xs text-indigo-300 break-all bg-slate-950/60 p-2 rounded border border-slate-800"
-                    >
-                      {{ user?.id }}
-                    </span>
-                  </div>
-                  <div
-                    class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center"
-                  >
-                    <span class="text-slate-400 font-medium">Full Name</span>
-                    <span
-                      class="col-span-2 sm:col-span-3 text-slate-200 font-medium text-base"
-                    >
-                      {{ user?.name }}
-                    </span>
-                  </div>
-                  <div
-                    class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center"
-                  >
-                    <span class="text-slate-400 font-medium"
-                      >Email Address</span
-                    >
-                    <span class="col-span-2 sm:col-span-3 text-slate-200">{{
-                      user?.email
-                    }}</span>
-                  </div>
-                  <div
-                    class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center"
-                  >
-                    <span class="text-slate-400 font-medium"
-                      >Subscription Status</span
-                    >
-                    <span class="col-span-2 sm:col-span-3 text-slate-200">
-                      {{ subscriptionStatusText }}
-                    </span>
-                  </div>
-                  <div
-                    class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center"
-                  >
-                    <span class="text-slate-400 font-medium"
-                      >Stripe Customer</span
-                    >
-                    <span
-                      class="col-span-2 sm:col-span-3 font-mono text-xs text-slate-300 break-all"
-                    >
-                      {{ user?.stripeCustomerId || "Not created yet" }}
-                    </span>
-                  </div>
-                  <div
-                    class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center"
-                  >
-                    <span class="text-slate-400 font-medium">Created At</span>
-                    <span class="col-span-2 sm:col-span-3 text-slate-200">
-                      {{
-                        user?.createdAt
-                          ? new Date(user.createdAt).toLocaleString()
-                          : "Recently"
-                      }}
-                    </span>
-                  </div>
+                <div class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center text-sm">
+                  <span class="text-muted font-medium">Full Name</span>
+                  <span class="col-span-2 sm:col-span-3 text-default font-medium text-base">
+                    {{ user?.name }}
+                  </span>
                 </div>
-              </div>
+                <div class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center text-sm">
+                  <span class="text-muted font-medium">Email Address</span>
+                  <span class="col-span-2 sm:col-span-3 text-default">{{ user?.email }}</span>
+                </div>
+                <div class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center text-sm">
+                  <span class="text-muted font-medium">Subscription Status</span>
+                  <span class="col-span-2 sm:col-span-3 text-default">
+                    {{ subscriptionStatusText }}
+                  </span>
+                </div>
+                <div class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center text-sm">
+                  <span class="text-muted font-medium">Stripe Customer</span>
+                  <span class="col-span-2 sm:col-span-3 font-mono text-xs text-default break-all">
+                    {{ user?.stripeCustomerId || "Not created yet" }}
+                  </span>
+                </div>
+                <div class="px-6 py-3.5 grid grid-cols-3 sm:grid-cols-4 items-center text-sm">
+                  <span class="text-muted font-medium">Created At</span>
+                  <span class="col-span-2 sm:col-span-3 text-default">
+                    {{ user?.createdAt ? new Date(user.createdAt).toLocaleString() : "Recently" }}
+                  </span>
+                </div>
+              </UCard>
 
               <div class="lg:col-span-1">
                 <ProfileForm :user="user" @updated="handleUserUpdated" />
               </div>
             </div>
           </template>
-        </main>
+        </UContainer>
       </div>
 
       <template #fallback>
-        <div class="min-h-screen bg-slate-950 flex items-center justify-center">
-          <div
-            class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"
-          ></div>
+        <div class="min-h-screen bg-default flex items-center justify-center">
+          <UIcon name="i-lucide-loader-circle" class="size-8 text-primary animate-spin" />
         </div>
       </template>
     </ClientOnly>
@@ -347,12 +202,14 @@ import { onAuthStateChanged, signOut, type Auth } from "firebase/auth";
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useNuxtApp } from "nuxt/app";
-import type { User, Subscription } from "@omnistack/core/db";
+import type { DropdownMenuItem } from "@nuxt/ui";
+import type { ClientUser } from "../composables/useUser";
 
 const router = useRouter();
 const route = useRoute();
-const { fetchWithAuth } = useApi();
+const { client } = useApi();
 const { $firebaseAuth } = useNuxtApp();
+const colorMode = useColorMode();
 
 // Use isPro and subscription directly from the useUser composable
 const { user, subscription, setUser, setSubscription, clearUser, isPro } =
@@ -361,43 +218,25 @@ const { user, subscription, setUser, setSubscription, clearUser, isPro } =
 const pending = ref(true);
 const showSuccessBanner = ref(false);
 
+const toggleColorMode = () => {
+  colorMode.preference = colorMode.value === "dark" ? "light" : "dark";
+};
+
 // Check if subscription is set to cancel at period end
 const isCanceling = computed(() => {
   if (!subscription.value) return false;
   return Boolean(subscription.value.cancelAtPeriodEnd);
 });
 
-// Format current period end date
-const formattedPeriodEnd = computed(() => {
-  if (!subscription.value?.currentPeriodEnd) return null;
-  return new Date(subscription.value.currentPeriodEnd).toLocaleDateString(
-    "en-US",
-    {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    },
-  );
-});
-
 // Status badge appearance and label
 const statusBadge = computed(() => {
   if (!isPro.value) {
-    return {
-      text: "Free",
-      class: "bg-slate-800 text-slate-400 border-slate-700",
-    };
+    return { text: "Free", color: "neutral" as const };
   }
   if (isCanceling.value) {
-    return {
-      text: "Canceling",
-      class: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    };
+    return { text: "Canceling", color: "warning" as const };
   }
-  return {
-    text: "Active",
-    class: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
-  };
+  return { text: "Active", color: "primary" as const };
 });
 
 const subscriptionStatusText = computed(() => {
@@ -406,25 +245,37 @@ const subscriptionStatusText = computed(() => {
   return "Free / Inactive";
 });
 
+const userMenuItems = computed<DropdownMenuItem[][]>(() => [
+  [
+    {
+      label: user.value?.email || "",
+      type: "label",
+    },
+  ],
+  [
+    {
+      label: "Sign out",
+      icon: "i-lucide-log-out",
+      color: "error",
+      onSelect: handleLogout,
+    },
+  ],
+]);
+
 let unsubscribe: (() => void) | null = null;
 
 // Fetch user profile and set both user and subscription state
 const loadUserProfile = async () => {
   try {
-    const response = await fetchWithAuth<{
-      user: User;
-      subscription?: Subscription | null;
-    }>("api/user/profile");
+    const res = await client.api.user.profile.$get();
+    const data = await unwrap(res);
 
-    if (response) {
-      if (response.user) {
-        setUser(response.user);
-      }
+    if (data.user) {
+      setUser(data.user);
+    }
 
-      const subData = response.subscription;
-      if (subData) {
-        setSubscription(subData);
-      }
+    if (data.subscription) {
+      setSubscription(data.subscription);
     }
   } catch (err) {
     console.error("Failed to load user profile:", err);
@@ -476,7 +327,7 @@ onUnmounted(() => {
   }
 });
 
-const handleLogout = async () => {
+async function handleLogout() {
   try {
     const auth = $firebaseAuth as Auth;
     await signOut(auth);
@@ -485,9 +336,9 @@ const handleLogout = async () => {
   } catch (err) {
     console.error("Logout error:", err);
   }
-};
+}
 
-const handleUserUpdated = (updatedData: Partial<User>) => {
+const handleUserUpdated = (updatedData: Partial<ClientUser>) => {
   setUser(updatedData);
 };
 </script>

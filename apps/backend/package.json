@@ -2,6 +2,9 @@
   "name": "@omnistack/backend",
   "version": "0.0.0",
   "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "dev": "sst dev",
     "stripe:login": "stripe login",

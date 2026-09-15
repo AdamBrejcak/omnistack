@@ -8,6 +8,7 @@ allowBuilds:
   esbuild: true
   protobufjs: true
   stripe-cli: set this to true or false
+  vue-demi: true
 catalog:
   "drizzle-orm": "0.45.2"
   "@neondatabase/serverless": "^1.1.0"

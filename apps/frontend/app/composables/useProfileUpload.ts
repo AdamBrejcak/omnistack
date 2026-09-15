@@ -1,8 +1,8 @@
 import { ref } from "vue";
-import { useApi } from "./useApi";
+import { useApi, unwrap } from "./useApi";
 
 export const useProfileUpload = () => {
-  const { fetchWithAuth } = useApi();
+  const { client } = useApi();
   const isUploading = ref(false);
   const error = ref<string | null>(null);
 
@@ -13,19 +13,16 @@ export const useProfileUpload = () => {
     try {
       const fileExtension = file.name.split(".").pop() || "jpg";
 
-      const response = await fetchWithAuth<{
-        uploadUrl: string;
-        publicUrl: string;
-        fileKey: string;
-      }>("api/uploads/profile-image", {
-        method: "POST",
-        body: {
+      const res = await client.api.uploads["profile-image"].$post({
+        json: {
           fileType: file.type,
           fileExtension,
+          fileSize: file.size,
         },
       });
+      const data = await unwrap(res);
 
-      const uploadResponse = await fetch(response.uploadUrl, {
+      const uploadResponse = await fetch(data.uploadUrl, {
         method: "PUT",
         headers: {
           "Content-Type": file.type,
@@ -37,7 +34,7 @@ export const useProfileUpload = () => {
         throw new Error("Failed to upload image to S3.");
       }
 
-      return response.publicUrl;
+      return data.publicUrl;
     } catch (e: any) {
       error.value = e.message || "An error occurred during upload.";
       throw e;

@@ -1,29 +1,27 @@
+import { hc } from "hono/client";
 import { type Auth } from "firebase/auth";
-import type { NitroFetchOptions } from "nitropack";
+import type { AppType } from "@omnistack/backend";
+import type { ApiResponse } from "@omnistack/core/api";
 
 export const useApi = () => {
   const { $firebaseAuth } = useNuxtApp();
   const config = useRuntimeConfig();
 
-  const fetchWithAuth = async <T = unknown>(
-    endpoint: string,
-    options?: NitroFetchOptions<any>
-  ): Promise<T> => {
-    const auth = $firebaseAuth as Auth;
-    const user = auth?.currentUser;
+  const client = hc<AppType>(config.public.apiUrl, {
+    headers: async (): Promise<Record<string, string>> => {
+      const auth = $firebaseAuth as Auth;
+      const token = auth?.currentUser ? await auth.currentUser.getIdToken() : null;
+      return token ? { Authorization: `Bearer ${token}` } : {};
+    },
+  });
 
-    const token = user ? await user.getIdToken() : null;
+  return { client };
+};
 
-    const headers = {
-      ...options?.headers,
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-
-    return $fetch<T>(`${config.public.apiUrl}${endpoint}`, {
-      ...options,
-      headers,
-    });
-  };
-
-  return { fetchWithAuth };
+export const unwrap = async <T>(response: { json(): Promise<ApiResponse<T>> }): Promise<T> => {
+  const body = await response.json();
+  if (!body.success) {
+    throw new Error(body.error.message);
+  }
+  return body.data;
 };

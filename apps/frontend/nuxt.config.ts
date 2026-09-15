@@ -6,8 +6,15 @@ export default defineNuxtConfig({
   ssr: true,
 
   modules: [
-    "@nuxtjs/tailwindcss"
+    "@nuxt/ui"
   ],
+
+  css: ['~/assets/css/main.css'],
+
+  colorMode: {
+    preference: "dark",
+    fallback: "dark",
+  },
 
   plugins: [
     './app/plugins/firebase.client.ts'

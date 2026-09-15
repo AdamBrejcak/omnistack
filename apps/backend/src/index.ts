@@ -7,8 +7,11 @@ import stripeRouter from "./routes/stripe";
 
 const app = new Hono();
 
-app.route("/api/user", userRouter);
-app.route("/api/uploads", uploadsRouter);
-app.route("/api/stripe", stripeRouter);
+const routes = app
+  .route("/api/user", userRouter)
+  .route("/api/uploads", uploadsRouter)
+  .route("/api/stripe", stripeRouter);
+
+export type AppType = typeof routes;
 
 export const handler = handle(app);

@@ -1,11 +1,5 @@
 <template>
-  <div>
+  <UApp :toaster="{ position: 'top-right' }">
     <NuxtPage />
-    <Toaster position="top-right" theme="dark" richColors />
-  </div>
+  </UApp>
 </template>
-
-<script setup lang="ts">
-import { Toaster } from "vue-sonner";
-import "vue-sonner/style.css";
-</script>

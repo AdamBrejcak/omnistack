@@ -1,56 +1,46 @@
 <template>
-  <div
-    class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-6 shadow-xl"
-  >
-    <h2 class="text-base font-semibold text-white mb-4">Edit Profile</h2>
+  <UCard>
+    <template #header>
+      <h2 class="text-base font-semibold text-highlighted">Edit Profile</h2>
+    </template>
 
-    <form @submit.prevent="handleSubmit" class="space-y-4">
-      <div>
-        <label class="block text-xs font-medium text-slate-400 mb-1"
-          >Full Name</label
-        >
-        <input
-          v-model="form.name"
-          type="text"
-          class="w-full bg-slate-950/80 border border-slate-800 rounded-lg px-3.5 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition"
-          required
-        />
-      </div>
+    <form class="space-y-4" @submit.prevent="handleSubmit">
+      <UFormField label="Full Name">
+        <UInput v-model="form.name" class="w-full" required />
+      </UFormField>
 
       <AvatarUpload
         :current-avatar-url="form.avatarUrl"
         @uploaded="handleAvatarUploaded"
       />
 
-      <button
+      <UButton
         type="submit"
-        :disabled="loading || !isDirty"
-        class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium text-sm rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
+        block
+        :loading="loading"
+        :disabled="!isDirty"
+        class="cursor-pointer"
       >
-        <span
-          v-if="loading"
-          class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"
-        ></span>
-        <span>{{ loading ? "Saving..." : "Save Changes" }}</span>
-      </button>
+        {{ loading ? "Saving..." : "Save Changes" }}
+      </UButton>
     </form>
-  </div>
+  </UCard>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { toast } from "vue-sonner";
-import type { User } from "@omnistack/core/db";
+import { ref, watch, computed } from "vue";
+import type { ClientUser } from "../composables/useUser";
 
 const props = defineProps<{
-  user: User | null;
+  user: ClientUser | null;
 }>();
 
 const emit = defineEmits<{
-  (e: "updated", data: Partial<User>): void;
+  (e: "updated", data: Partial<ClientUser>): void;
 }>();
 
-const { fetchWithAuth } = useApi();
+const toast = useToast();
+const { client } = useApi();
 const loading = ref(false);
 
 const form = ref({
@@ -84,23 +74,23 @@ const handleAvatarUploaded = (url: string) => {
 const handleSubmit = async () => {
   loading.value = true;
   try {
-    await fetchWithAuth("api/user/profile", {
-      method: "PATCH",
-      body: {
-        name: form.value.name,
-        avatarUrl: form.value.avatarUrl,
+    const res = await client.api.user.profile.$patch({
+      json: {
+        name: form.value.name ?? undefined,
+        avatarUrl: form.value.avatarUrl ?? undefined,
       },
     });
+    await unwrap(res);
 
     emit("updated", {
       name: form.value.name,
       avatarUrl: form.value.avatarUrl,
     });
 
-    toast.success("Profile updated successfully!");
+    toast.add({ title: "Profile updated successfully!", color: "success" });
   } catch (err) {
     console.error("Failed to update profile:", err);
-    toast.error("Failed to update profile. Please try again.");
+    toast.add({ title: "Failed to update profile. Please try again.", color: "error" });
   } finally {
     loading.value = false;
   }

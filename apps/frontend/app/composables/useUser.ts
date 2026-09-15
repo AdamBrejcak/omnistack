@@ -1,25 +1,29 @@
 import type { User, Subscription } from "@omnistack/core/db";
+import type { Serialized } from "@omnistack/core/api";
+
+export type ClientUser = Serialized<User>;
+export type ClientSubscription = Serialized<Subscription>;
 
 export const useUser = () => {
-    const user = useState<User | null>("auth-user", () => null);
-    const subscription = useState<Subscription | null>("auth-subscription", () => null);
+    const user = useState<ClientUser | null>("auth-user", () => null);
+    const subscription = useState<ClientSubscription | null>("auth-subscription", () => null);
 
-    const setUser = (data: Partial<User> | null) => {
+    const setUser = (data: Partial<ClientUser> | null) => {
         if (!data) {
             user.value = null;
             return;
         }
-        user.value = user.value ? { ...user.value, ...data } : (data as User);
+        user.value = user.value ? { ...user.value, ...data } : (data as ClientUser);
     };
 
-    const setSubscription = (data: Partial<Subscription> | null) => {
+    const setSubscription = (data: Partial<ClientSubscription> | null) => {
         if (!data) {
             subscription.value = null;
             return;
         }
         subscription.value = subscription.value
             ? { ...subscription.value, ...data }
-            : (data as Subscription);
+            : (data as ClientSubscription);
     };
 
     const clearUser = () => {
